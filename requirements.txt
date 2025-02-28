@@ -1,2 +1,3 @@
-python-telegram-bot[ext]==20.8
-Flask==3.0.0
+requests
+python-telegram-bot[ext]
+flask
