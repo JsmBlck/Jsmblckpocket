@@ -2,6 +2,8 @@ import os
 import random
 import asyncio
 import threading 
+import requests
+import time
 from flask import Flask
 from threading import Thread
 from telegram import Update, ReplyKeyboardMarkup
@@ -18,8 +20,8 @@ otc_pairs = [
 
 # List of randomized responses
 responses = [
-    "📊 **{pair}:** ⬆️⬆️⬆️ 📈",
-    "📊 **{pair}:** ⬇️⬇️⬇️ 📉"
+    "📊 **{pair}:** ⬆️⬆️⬆️ 🟢",
+    "📊 **{pair}:** ⬇️⬇️⬇️ 🔴"
 ]
 
 # Create a Flask app
@@ -29,6 +31,17 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return "Bot is running!"
+
+# Keep-alive function to prevent service from sleeping
+def keep_alive():
+    render_url = "https://jsmblckpocket.onrender.com"
+    while True:
+        try:
+            requests.get(render_url)
+            print("✅ Self-ping successful!")
+        except Exception as e:
+            print(f"❌ Ping failed: {e}")
+        time.sleep(300)  # Ping every 5 minutes
 
 # Command handler for /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -98,6 +111,7 @@ def run_flask():
 
 threading.Thread(target=run_flask).start()
 
+
 def main() -> None:
     # Create an Application object with your bot's token
     application = Application.builder().token(TOKEN).build()
@@ -111,6 +125,10 @@ def main() -> None:
     # Start the Flask server in a separate thread
     flask_thread = Thread(target=run_flask)
     flask_thread.start()
+
+    # Start the keep-alive function in a separate thread
+    keep_alive_thread = threading.Thread(target=keep_alive)
+    keep_alive_thread.start()
 
     # Start the bot
     print("Bot is running...")
