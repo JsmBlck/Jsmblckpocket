@@ -1,3 +1,5 @@
 requests
 python-telegram-bot[ext]
 flask
+pip install python-dotenv
+
